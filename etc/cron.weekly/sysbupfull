@@ -1,0 +1,13 @@
+#!/bin/sh
+host=`/bin/hostname -s`
+pidir="/mnt/dietpi-backup"
+outdir="/mnt/samba"
+indir="${pidir}/dietpi-backup_system"
+/DietPi/dietpi/dietpi-backup 1 "$pidir" > /dev/null 2>&1 || { /bin/echo "dietpi-backup error!"; exit 1; }
+/bin/mountpoint -q "$outdir" || { /bin/echo "share not mounted!"; exit 1; }
+secs=`/bin/date +%s`
+file="${outdir}/${host}_${secs}_SYSBUP-FULL"
+/usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -c "$file" || { /bin/echo "dar failed!"; exit 1; }
+/usr/bin/dar -t "$file" > /dev/null 2>&1 || { /bin/echo "dar verification failed!"; exit 1; }
+/usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype posix-extended -regex "^${outdir}/${host}_[0-9]{10}_SYSBUP-(FULL|DIFF).[0-9]?.dar$" -mtime +14 -print -exec rm {} \;
+/bin/echo "Weekly full backup successful"; exit 0
