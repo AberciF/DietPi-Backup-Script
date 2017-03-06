@@ -7,7 +7,7 @@ indir="${pidir}/dietpi-backup_system"
 /DietPi/dietpi/dietpi-cleaner 1 > /dev/null 2>&1 || { /bin/echo "dietpi-cleaner error!"; exit 1; }
 /bin/echo -e "FP_TARGET_BACKUP=/mnt/dietpi-backup\nBACKUP_MODE=0" > /DietPi/dietpi/.dietpi-backup_settings
 /DietPi/dietpi/dietpi-backup 1 "$pidir" > /dev/null 2>&1 || { /bin/echo "dietpi-backup error!"; exit 1; }
-/bin/mountpoint -q "$outdir" || { /bin/echo "share not mounted!"; exit 1; }
+/bin/mountpoint -q /mnt/samba || { /bin/echo "share not mounted!"; exit 1; }
 secs=`/bin/date +%s`
 if [ `/bin/date +%d` -eq 01 ]; then
     file="${outdir}/${host}_${secs}_SYSBUP-FULL"
