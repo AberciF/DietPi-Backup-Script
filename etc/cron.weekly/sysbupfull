@@ -3,6 +3,8 @@ host=`/bin/hostname -s`
 pidir="/mnt/dietpi-backup"
 outdir="/mnt/samba"
 indir="${pidir}/dietpi-backup_system"
+/bin/echo -e "1\n1\n0\n0\n1" > /DietPi/dietpi/.dietpi-cleaner
+/DietPi/dietpi/dietpi-cleaner 1 > /dev/null 2>&1 || { /bin/echo "dietpi-cleaner error!"; exit 1; }
 /DietPi/dietpi/dietpi-backup 1 "$pidir" > /dev/null 2>&1 || { /bin/echo "dietpi-backup error!"; exit 1; }
 /bin/mountpoint -q "$outdir" || { /bin/echo "share not mounted!"; exit 1; }
 secs=`/bin/date +%s`
