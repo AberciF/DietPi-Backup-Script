@@ -8,13 +8,13 @@ indir="${pidir}/dietpi-backup_system"
 /bin/echo -e "FP_TARGET_BACKUP=${pidir}\nBACKUP_MODE=0" > /DietPi/dietpi/.dietpi-backup_settings
 /DietPi/dietpi/dietpi-backup 1 "$pidir" > /dev/null 2>&1 || { /bin/echo "dietpi-backup error!"; exit 1; }
 /bin/mountpoint -q /mnt/samba || { /bin/echo "share not mounted!"; exit 1; }
+last=`/usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype posix-extended -regex "^${outdir}/${host}_[0-9]{10}_SYSBUP-(FULL|DIFF).[0-9]?.dar$" -printf "%C@ %p\n" | /usr/bin/sort -n | /usr/bin/awk -F'[. ]' '{print $3}' | /usr/bin/tail -n1`
 secs=`/bin/date +%s`
-if [ `/bin/date +%d` -eq 01 -o "$1" = "full" ]; then
+if [ `/bin/date +%d` -eq 01 -o "$1" = "full" -o "$last" = "" ]; then
     file="${outdir}/${host}_${secs}_SYSBUP-FULL"
     /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -c "$file" || { /bin/echo "dar failed!"; exit 1; }
     /usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype posix-extended -regex "^${outdir}/${host}_[0-9]{10}_SYSBUP-(FULL|DIFF).[0-9]?.dar$" -mtime +60 -print -exec rm {} \;
 else
-    last=`/usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype posix-extended -regex "^${outdir}/${host}_[0-9]{10}_SYSBUP-(FULL|DIFF).[0-9]?.dar$" -printf "%C@ %p\n" | /usr/bin/sort -n | /usr/bin/awk -F'[. ]' '{print $3}' | /usr/bin/tail -n1`
     file="${outdir}/${host}_${secs}_SYSBUP-DIFF"
     /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -c "$file" -A "$last" || { /bin/echo "dar failed!"; exit 1; }
 fi
