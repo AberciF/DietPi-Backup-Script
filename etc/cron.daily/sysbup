@@ -12,11 +12,11 @@ last=`/usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype
 secs=`/bin/date +%s`
 if [ `/bin/date +%d` -eq 01 -o "$1" = "full" -o "$last" = "" ]; then
     file="${outdir}/${host}_${secs}_SYSBUP-FULL"
-    /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -c "$file" || { /bin/echo "dar failed!"; exit 1; }
+    /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -ar -D -P "var\/[^w]{3}.*" -c "$file" || { /bin/echo "dar failed!"; exit 1; }
     /usr/bin/find "$outdir" -path "${outdir}/*/*" -prune -o -type f -regextype posix-extended -regex "^${outdir}/${host}_[0-9]{10}_SYSBUP-(FULL|DIFF).[0-9]?.dar$" -mtime +60 -print -exec rm {} \;
 else
     file="${outdir}/${host}_${secs}_SYSBUP-DIFF"
-    /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -c "$file" -A "$last" || { /bin/echo "dar failed!"; exit 1; }
+    /usr/bin/dar -m 256 -zgzip:7 -Z compress-exclusion -R "$indir" -ar -D -P "var\/[^w]{3}.*" -c "$file" -A "$last" || { /bin/echo "dar failed!"; exit 1; }
 fi
 /usr/bin/dar -t "$file" > /dev/null 2>&1 || { /bin/echo "dar verification failed!"; exit 1; }
 /bin/echo "daily backup successful"
